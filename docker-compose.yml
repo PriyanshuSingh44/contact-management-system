@@ -21,21 +21,15 @@ services:
 
   # ── Jenkins CI/CD Server ──────────────────────────────────────────────────
   jenkins:
-    build:
-      context: .
-      dockerfile: jenkins.Dockerfile   # custom image: jenkins:lts + Docker CLI
-    image: jenkins-with-docker:latest
+    image: jenkins-with-docker:latest   # jenkins:lts + Docker CLI (built once)
     container_name: jenkins-container
     ports:
-      - "8080:8080"   # Jenkins Web UI
-      - "50000:50000" # Jenkins agent communication
+      - "8080:8080"
     volumes:
-      - jenkins_home:/var/jenkins_home             # persists Jenkins config, jobs, plugins
-      - /var/run/docker.sock:/var/run/docker.sock  # DooD: Jenkins uses host Docker engine
-    environment:
-      - DOCKER_HOST=unix:///var/run/docker.sock
+      - jenkins_home:/var/jenkins_home             # saves all Jenkins settings and jobs
+      - /var/run/docker.sock:/var/run/docker.sock  # lets Jenkins run docker commands
     restart: unless-stopped
-    user: root  # needed to access the Docker socket
+    user: root
 
 volumes:
   contacts_data:   # persists contacts.json across restarts/rebuilds
