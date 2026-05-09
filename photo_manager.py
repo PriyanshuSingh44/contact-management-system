@@ -59,7 +59,7 @@ class PhotoManager:
         filename = f"{phone}_{uploaded_file.name}"
         # Sanitize filename (remove any path separators)
         filename = filename.replace("/", "_").replace("\\", "_")
-        
+
         filepath = self._photos_dir / filename
 
         try:
