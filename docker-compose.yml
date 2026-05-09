@@ -1,0 +1,40 @@
+services:
+
+  # ── Contact Management System (Streamlit App) ─────────────────────────────
+  cms:
+    image: contact-management-system:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8501:8501"
+    volumes:
+      - contacts_data:/app/data    # named volume → /app/data/contacts.json is persisted
+      - photos_data:/app/photos    # named volume → /app/photos/ dir is persisted
+    environment:
+      - PYTHONUNBUFFERED=1
+      - CONTACTS_FILE=/app/data/contacts.json
+      - PHOTOS_DIR=/app/photos
+    restart: unless-stopped
+    depends_on:
+      - jenkins
+
+  # ── Jenkins CI/CD Server ──────────────────────────────────────────────────
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins-container
+    ports:
+      - "8080:8080"   # Jenkins Web UI
+      - "50000:50000" # Jenkins agent communication
+    volumes:
+      - jenkins_home:/var/jenkins_home          # persists all Jenkins config, jobs, plugins
+      - /var/run/docker.sock:/var/run/docker.sock  # Docker-outside-of-Docker (DooD)
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    restart: unless-stopped
+    user: root  # needed to access Docker socket on Linux/WSL
+
+volumes:
+  contacts_data:   # persists contacts.json across restarts/rebuilds
+  photos_data:     # persists uploaded photos across restarts/rebuilds
+  jenkins_home:    # persists Jenkins config, jobs, build history, installed plugins
