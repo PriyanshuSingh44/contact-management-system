@@ -19,11 +19,16 @@ pipeline {
 
         // ── Stage 2: Run Tests ───────────────────────────────────────────────
         stage('Test') {
+            // Run tests inside a Python container — no need for Python on Jenkins
+            agent {
+                docker {
+                    image 'python:3.11-slim'
+                    reuseNode true   // share the workspace checked out by the outer agent
+                }
+            }
             steps {
-                echo '🧪 Running unit tests...'
+                echo '🧪 Running unit tests inside python:3.11-slim container...'
                 sh '''
-                    python3 -m venv .venv
-                    . .venv/bin/activate
                     pip install --quiet -r requirements.txt
                     pip install --quiet pytest
                     pytest tests/ -v --tb=short
