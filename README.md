@@ -81,11 +81,11 @@ The app opens in your browser (usually `http://localhost:8501`). You're ready to
 Optional: run the test suite for the contact logic and storage:
 
 ```bash
-pip install -r requirements-dev.txt
+pip install -r requirements.txt
 pytest tests/ -v
 ```
 
-`requirements-dev.txt` includes the main app dependencies plus **pytest**.
+`requirements.txt` includes the main app dependencies plus **pytest**.
 
 ---
 
