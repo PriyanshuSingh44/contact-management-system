@@ -92,9 +92,12 @@ class ContactManagementSystem:
         raw = self._storage.load()
         for record in raw:
             contact = Contact.from_dict(record)
-            if contact.phone and contact.phone not in self._phone_set:
-                self._contacts.append(contact)
-                self._phone_set.add(contact.phone)
+            if contact.phone:
+                if _valid_phone(contact.phone):
+                    contact.phone = _normalize_phone(contact.phone)
+                if contact.phone not in self._phone_set:
+                    self._contacts.append(contact)
+                    self._phone_set.add(contact.phone)
 
     def _persist(self) -> bool:
         """Write current state back to disk."""
@@ -128,6 +131,8 @@ class ContactManagementSystem:
 
         if not _valid_phone(phone):
             return False, "Phone number must be exactly 10 digits (excluding the +91 country code)."
+
+        phone = _normalize_phone(phone)
 
         if phone in self._phone_set:
             return False, f"A contact with phone '{phone}' already exists."
@@ -179,6 +184,8 @@ class ContactManagementSystem:
 
         if not _valid_phone(new_phone):
             return False, "Phone number must be exactly 10 digits (excluding the +91 country code)."
+
+        new_phone = _normalize_phone(new_phone)
 
         if new_email and not _valid_email(new_email):
             return False, "Please enter a valid email address."
@@ -234,6 +241,12 @@ _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 _PHONE_PREFIX_RE = re.compile(r"^(?:\+?91[\s\-.]?)?")
 
 
+def _normalize_phone(phone: str) -> str:
+    """Normalize phone to 10 digits by stripping +91 and separators."""
+    stripped = _PHONE_PREFIX_RE.sub("", phone.strip())
+    return re.sub(r"[\s\-.]", "", stripped)
+
+
 def _valid_phone(phone: str) -> bool:
     """
     Return True if *phone* contains exactly 10 digits after stripping
@@ -248,10 +261,7 @@ def _valid_phone(phone: str) -> bool:
     12345               → ✗  (too short)
     +1 9876543210       → ✗  (wrong country code)
     """
-    # Strip leading country code (+91 or 91)
-    stripped = _PHONE_PREFIX_RE.sub("", phone.strip())
-    # Remove separators (spaces, hyphens, dots)
-    digits = re.sub(r"[\s\-.]", "", stripped)
+    digits = _normalize_phone(phone)
     return digits.isdigit() and len(digits) == 10
 
 

@@ -30,7 +30,7 @@ def test_contact_from_dict_missing_fields():
 
 def test_contact_to_dict():
     c = Contact(name="X", phone="9999999999", email="x@y.z")
-    assert c.to_dict() == {"name": "X", "phone": "9999999999", "email": "x@y.z"}
+    assert c.to_dict() == {"name": "X", "phone": "9999999999", "email": "x@y.z", "photo": ""}
 
 
 def test_contact_matches_name():
