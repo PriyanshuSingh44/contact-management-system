@@ -93,6 +93,10 @@ pytest tests/ -v
 
 | File / folder | Purpose |
 |--------------|---------|
+| `Dockerfile` | Instructions to build the Streamlit app Docker image |
+| `docker-compose.yml` | Services for `cms` app and `jenkins` CI/CD server |
+| `Jenkinsfile` | CI/CD pipeline configuration (Build, Test, Deploy) |
+| `jenkins.Dockerfile` | Custom Jenkins image with Docker CLI installed |
 | `app.py` | Streamlit UI: pages, forms, styling, photo display |
 | `cms.py` | Contact model and ContactManagementSystem (CRUD, validation) |
 | `storage_manager.py` | Load/save contacts to `contacts.json` |
@@ -102,6 +106,30 @@ pytest tests/ -v
 | `tests/` | Unit tests for `cms` and `storage_manager` |
 | `requirements.txt` | App dependencies (e.g. Streamlit) |
 | `requirements-dev.txt` | App + dev dependencies (e.g. pytest) |
+
+---
+
+## Docker & CI/CD Pipeline
+
+This project is fully containerized and includes an automated CI/CD pipeline using Jenkins.
+
+### Run Locally with Docker Compose
+To run the application using Docker without installing Python on your host:
+```bash
+docker compose up -d cms
+```
+The app will be accessible at `http://localhost:8501`. Your contacts and photos are safely persisted using Docker volumes (`contacts_data` and `photos_data`).
+
+### Automated CI/CD with Jenkins
+A custom Jenkins server with Docker-outside-of-Docker (DooD) support is provided to automate testing and deployment.
+```bash
+docker compose up -d jenkins
+```
+- Access Jenkins at `http://localhost:8080`.
+- The CI/CD pipeline is defined in `Jenkinsfile` and automatically handles:
+  1. **Build**: Packages the app into a new Docker image (`contact-management-system:latest`).
+  2. **Test**: Runs the complete `pytest` suite inside an isolated container. If tests fail, deployment stops.
+  3. **Deploy**: Automatically replaces the running container with the freshly built image if tests pass.
 
 ---
 
