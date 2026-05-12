@@ -16,8 +16,6 @@ services:
       - CONTACTS_FILE=/app/data/contacts.json
       - PHOTOS_DIR=/app/photos
     restart: unless-stopped
-    depends_on:
-      - jenkins
 
   # ── Jenkins CI/CD Server ──────────────────────────────────────────────────
   jenkins:
